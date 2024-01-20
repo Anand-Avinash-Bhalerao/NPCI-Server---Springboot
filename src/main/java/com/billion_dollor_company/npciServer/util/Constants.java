@@ -25,13 +25,26 @@ public class Constants {
         public static final String AMOUNT = "amount";
     }
 
+    public static class CheckBalanceRequest{
+
+        public static final String PAYER_ID = "payerID";
+        public static final String BANK_NAME = "bankName";
+        public static final String ENCRYPTED_STRING = "encryptedString";
+
+    }
+
     public static class Servers{
 
         public static class BankServer{
             private static final String BASE_URL = "http://localhost:8010/bank";
             private static final String START_TRANSACTION = "/transaction";
+
+            private static final String CHECK_BALANCE = "/checkbalance";
             public static String getTransactionURL(){
                 return BASE_URL + START_TRANSACTION;
+            }
+            public static String getCheckBalanceURL() {
+                return BASE_URL + CHECK_BALANCE;
             }
         }
 

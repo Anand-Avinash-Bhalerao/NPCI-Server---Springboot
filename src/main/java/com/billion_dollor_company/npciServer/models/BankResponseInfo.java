@@ -11,3 +11,5 @@ public class BankResponseInfo {
         this.status = status;
     }
 }
+
+
