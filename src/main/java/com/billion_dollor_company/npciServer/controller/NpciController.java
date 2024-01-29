@@ -1,15 +1,18 @@
 package com.billion_dollor_company.npciServer.controller;
 
+import com.billion_dollor_company.npciServer.models.ResponseStatusInfo;
+import com.billion_dollor_company.npciServer.models.TransactionRequest;
 import com.billion_dollor_company.npciServer.util.Constants;
 import com.billion_dollor_company.npciServer.util.Helper;
 import com.billion_dollor_company.npciServer.util.cryptography.DecryptionManager;
 import com.billion_dollor_company.npciServer.util.cryptography.EncryptionManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/npci")
@@ -18,64 +21,77 @@ public class NpciController {
     @Autowired
     private RestTemplate restTemplate;
 
+
     @PostMapping("/transaction")
-    public String startTransaction(@RequestBody String xmlRequest) {
+    public ResponseEntity<String> startTransaction(@RequestBody String reqFromPSP) {
+        System.out.println("\n______________________________________AT NPCI SERVER______________________________________\n");
+        System.out.println("The XML request sent from PSP to NPCI Server is:\n" + Helper.getPrettyXML(reqFromPSP, TransactionRequest.class) + "\n");
 
-        // the request is in xml. we need to extract the required things.
-        String[] toExtractArr = {Constants.TransactionRequest.AMOUNT, Constants.TransactionRequest.ENCRYPTED_STRING, Constants.TransactionRequest.BANK_NAME, Constants.TransactionRequest.PAYER_ID, Constants.TransactionRequest.PAYEE_ID};
-
-        // in this requestMap, we extract all the tags from the request xml.
-        HashMap<String, String> requestMap = Helper.xmlToMap(xmlRequest, toExtractArr);
-
-        // in this responseMap, we store all the tags needed in for the response xml. Used in the very end.
-        HashMap<String, String> responseMap = new HashMap<>();
-
-
-        String bankName = requestMap.get(Constants.TransactionRequest.BANK_NAME);
-        String payerID = requestMap.get(Constants.TransactionRequest.PAYER_ID);
-        String payeeID = requestMap.get(Constants.TransactionRequest.PAYEE_ID);
-        String amount = requestMap.get(Constants.TransactionRequest.AMOUNT);
-
-        // This is the message sent from CL. Encrypted part is the password.
-        String encryptedMessage = requestMap.get(Constants.TransactionRequest.ENCRYPTED_STRING);
+        XmlMapper xmlMapper = new XmlMapper();
+        TransactionRequest transactionInfo = null;
+        HttpStatus responseStatusCode = HttpStatus.OK;
+        ResponseStatusInfo responseForPSPObj = new ResponseStatusInfo();
 
         try {
-            // TESTING: the encrypted text was : "My name is Anand Bhalerao"
+            transactionInfo = xmlMapper.readValue(reqFromPSP, TransactionRequest.class);
+        } catch (Exception e) {
+
+            System.out.println("An error occurred while converting request from XML");
+            e.printStackTrace();
+
+            responseForPSPObj.setStatus(Constants.Values.ERROR_WHILE_CONVERSION);
+
+            String errorResponseForPSPBody = "";
+            try {
+                errorResponseForPSPBody = xmlMapper.writeValueAsString(responseForPSPObj);
+            } catch (Exception ignored) {
+            }
+
+            ResponseEntity<String> errorResponse = new ResponseEntity<>(errorResponseForPSPBody, HttpStatus.BAD_REQUEST);
+            return errorResponse;
+        }
+
+        String responseForPSPStr;
+        HttpStatus responseStatus = HttpStatus.OK;
+        try {
             // it was encrypted using NPCI public key.
             // Decrypt the text received from the app which was encrypted by the CL using NPCI's public key.
-            DecryptionManager decryptionManager = new DecryptionManager(Constants.Keys.NPCI_PRIVATE_KEY_STRING, "NPCI Private key");
-            String decryptedWithNPCI = decryptionManager.getDecryptedMessage(encryptedMessage);
+            DecryptionManager decryptionManager = new DecryptionManager(Constants.Keys.NPCI_PRIVATE_KEY, "NPCI Private key");
+            String decryptedWithNPCI = decryptionManager.getDecryptedMessage(transactionInfo.getEncryptedString());
 
-            System.out.println("Decrypted message at NPCI server is: " + decryptedWithNPCI);
+            System.out.println("Decrypted password at NPCI server is: " + decryptedWithNPCI + "\n");
 
             // Encrypt with the banks public key. Needs to be dynamic in future tho.
             EncryptionManager encryptionManager = new EncryptionManager(Constants.Keys.BANK_PUBLIC_KEY, "Bank Public key");
 
             // encrypted with bank public key.
             String encryptedWithBank = encryptionManager.getEncryptedMessage(decryptedWithNPCI);
+            transactionInfo.setEncryptedString(encryptedWithBank);
 
-            // replace the encrypted entry in the map only, don't need to create another map.
-            requestMap.put(Constants.TransactionRequest.ENCRYPTED_STRING, encryptedWithBank);
-
-            String toSend = Helper.mapToXML(requestMap, "request");
-            System.out.println("XML to send is :\n" + toSend);
+            String reqToSendToBank = xmlMapper.writer().withRootName("request").writeValueAsString(transactionInfo);
+            System.out.println("The request sent from NPCI to bank in XML is:\n" + Helper.getPrettyXML(reqToSendToBank, TransactionRequest.class) + "\n");
 
             String bankServerUrl = Constants.Servers.BankServer.getTransactionURL();
-            ResponseEntity<String> response = restTemplate.postForEntity(bankServerUrl, toSend, String.class);
+            ResponseEntity<String> responseFromBank = restTemplate.postForEntity(bankServerUrl, reqToSendToBank, String.class);
+            System.out.println("The response received at NPCI from bank is: \n"+ Helper.getPrettyXML(responseFromBank.getBody(), ResponseStatusInfo.class));
 
+            responseForPSPObj = xmlMapper.readValue(responseFromBank.getBody(), ResponseStatusInfo.class);
+            responseStatus = (HttpStatus) responseFromBank.getStatusCode();
+            responseForPSPStr = xmlMapper.writer().withRootName("response").writeValueAsString(responseForPSPObj);
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                //we need to extract status from the response.
-                String status = Helper.extractFromXML(response.getBody(), "status");
-                if (status == null) status = "failed";
-                responseMap.put("status", status);
-            } else {
-                responseMap.put("status", "failed");
-            }
         } catch (Exception e) {
-            responseMap.put("status", "failed");
-            System.out.println(e.getMessage());
+            System.out.println("Some error occurec");
+            responseForPSPStr = "";
+            responseStatus = HttpStatus.BAD_REQUEST;
+            responseForPSPObj.setStatus(Constants.Values.SOME_ERROR_OCCURRED);
+            try {
+                responseForPSPStr = xmlMapper.writer().withRootName("response").writeValueAsString(responseForPSPObj);
+            } catch (Exception ignored) {
+            }
         }
-        return Helper.mapToXML(responseMap, "response");
+
+        System.out.println("The response sent to PSP from NPCI in XML is \n" + Helper.getPrettyXML(responseForPSPStr, ResponseStatusInfo.class) + "\n\n");
+
+        return new ResponseEntity<>(responseForPSPStr, responseStatus);
     }
 }
