@@ -47,7 +47,7 @@ public class NpciController {
             } catch (Exception ignored) {
             }
 
-            ResponseEntity<String> errorResponse = new ResponseEntity<>(errorResponseForPSPBody, HttpStatus.BAD_REQUEST);
+            ResponseEntity<String> errorResponse = new ResponseEntity<>(errorResponseForPSPBody, HttpStatus.OK);
             return errorResponse;
         }
 
@@ -57,7 +57,7 @@ public class NpciController {
             // it was encrypted using NPCI public key.
             // Decrypt the text received from the app which was encrypted by the CL using NPCI's public key.
             DecryptionManager decryptionManager = new DecryptionManager(Constants.Keys.NPCI_PRIVATE_KEY, "NPCI Private key");
-            String decryptedWithNPCI = decryptionManager.getDecryptedMessage(transactionInfo.getEncryptedString());
+            String decryptedWithNPCI = decryptionManager.getDecryptedMessage(transactionInfo.getEncryptedPassword());
 
             System.out.println("Decrypted password at NPCI server is: " + decryptedWithNPCI + "\n");
 
@@ -66,23 +66,30 @@ public class NpciController {
 
             // encrypted with bank public key.
             String encryptedWithBank = encryptionManager.getEncryptedMessage(decryptedWithNPCI);
-            transactionInfo.setEncryptedString(encryptedWithBank);
+            transactionInfo.setEncryptedPassword(encryptedWithBank);
 
             String reqToSendToBank = xmlMapper.writer().withRootName("request").writeValueAsString(transactionInfo);
             System.out.println("The request sent from NPCI to bank in XML is:\n" + Helper.getPrettyXML(reqToSendToBank, TransactionRequest.class) + "\n");
 
             String bankServerUrl = Constants.Servers.BankServer.getTransactionURL();
             ResponseEntity<String> responseFromBank = restTemplate.postForEntity(bankServerUrl, reqToSendToBank, String.class);
-            System.out.println("The response received at NPCI from bank is: \n"+ Helper.getPrettyXML(responseFromBank.getBody(), ResponseStatusInfo.class));
+//            System.out.println("The response received at NPCI from bank is: \n"+ Helper.getPrettyXML(responseFromBank.getBody(), ResponseStatusInfo.class));
+
+            responseStatus = (HttpStatus) responseFromBank.getStatusCode();
+
+            if (responseFromBank.getStatusCode().is4xxClientError()) {
+
+            }
+
+            System.out.println("The response received at NPCI from bank is: \n"+ responseFromBank);
 
             responseForPSPObj = xmlMapper.readValue(responseFromBank.getBody(), ResponseStatusInfo.class);
-            responseStatus = (HttpStatus) responseFromBank.getStatusCode();
             responseForPSPStr = xmlMapper.writer().withRootName("response").writeValueAsString(responseForPSPObj);
 
         } catch (Exception e) {
             System.out.println("Some error occurec");
             responseForPSPStr = "";
-            responseStatus = HttpStatus.BAD_REQUEST;
+            responseStatus = HttpStatus.OK;
             responseForPSPObj.setStatus(Constants.Values.SOME_ERROR_OCCURRED);
             try {
                 responseForPSPStr = xmlMapper.writer().withRootName("response").writeValueAsString(responseForPSPObj);
