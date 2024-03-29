@@ -32,12 +32,16 @@ public class DecryptionManager {
         }
     }
 
-    public String getDecryptedMessage(String encryptedMessage) throws Exception {
-        byte[] encryptedBytes = Helper.decode(encryptedMessage);
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+    public String getDecryptedMessage(String encryptedMessage){
+        try {
+            byte[] encryptedBytes = Helper.decode(encryptedMessage);
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-        byte[] decryptedMessage = cipher.doFinal(encryptedBytes);
-        return new String(decryptedMessage, StandardCharsets.UTF_8);
+            byte[] decryptedMessage = cipher.doFinal(encryptedBytes);
+            return new String(decryptedMessage, StandardCharsets.UTF_8);
+        }catch (Exception e){
+            return null;
+        }
     }
 }

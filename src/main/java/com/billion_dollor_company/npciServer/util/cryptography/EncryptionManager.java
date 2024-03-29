@@ -1,6 +1,7 @@
 package com.billion_dollor_company.npciServer.util.cryptography;
 
 import com.billion_dollor_company.npciServer.util.Helper;
+import lombok.Builder;
 
 import javax.crypto.Cipher;
 import java.security.KeyFactory;
@@ -33,12 +34,18 @@ public class EncryptionManager {
         System.out.println("The public key named:'" + keyName + "'is :" + Helper.encode(publicKey.getEncoded()));
     }
 
-    public String getEncryptedMessage(String message) throws Exception {
-        byte[] messageToBytes = message.getBytes();
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+    public String getEncryptedMessage(String message) {
+        try {
 
-        byte[] encryptedBytes = cipher.doFinal(messageToBytes);
-        return Helper.encode(encryptedBytes);
+            byte[] messageToBytes = message.getBytes();
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+            byte[] encryptedBytes = cipher.doFinal(messageToBytes);
+            return Helper.encode(encryptedBytes);
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 }
