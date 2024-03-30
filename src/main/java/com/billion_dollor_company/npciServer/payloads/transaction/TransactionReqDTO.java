@@ -1,9 +1,9 @@
-package com.billion_dollor_company.npciServer.payloads;
+package com.billion_dollor_company.npciServer.payloads.transaction;
 
 import lombok.Data;
 
 @Data
-public class TransactionRequestDTO {
+public class TransactionReqDTO {
     private String payeeFullName;
     private String amountToTransfer;
     private String payeeAccountNo;

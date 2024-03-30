@@ -1,7 +1,9 @@
 package com.billion_dollor_company.npciServer.controller;
 
-import com.billion_dollor_company.npciServer.payloads.TransactionRequestDTO;
-import com.billion_dollor_company.npciServer.payloads.TransactionResponseDTO;
+import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceReqDTO;
+import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceResDTO;
+import com.billion_dollor_company.npciServer.payloads.transaction.TransactionReqDTO;
+import com.billion_dollor_company.npciServer.payloads.transaction.TransactionResDTO;
 import com.billion_dollor_company.npciServer.service.interfaces.NpciService;
 import com.billion_dollor_company.npciServer.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +21,20 @@ public class NpciController {
         this.npciService = npciService;
     }
 
+    @PostMapping("/checkBalance")
+    public ResponseEntity<BalanceResDTO> getAccountBalance(@RequestBody BalanceReqDTO request) {
+        System.out.println("The request is "+request);
+        BalanceResDTO responseDTO = npciService.getAccountBalance(request);
+        if (responseDTO.getStatus().equals(Constants.Transaction.Status.FAILED)) {
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+
     @PostMapping("/transaction")
-    public ResponseEntity<TransactionResponseDTO> initiateTransaction(@RequestBody TransactionRequestDTO request) {
-        TransactionResponseDTO responseDTO = npciService.initiateTransaction(request);
+    public ResponseEntity<TransactionResDTO> initiateTransaction(@RequestBody TransactionReqDTO request) {
+        TransactionResDTO responseDTO = npciService.initiateTransaction(request);
 
         if (responseDTO.getStatus().equals(Constants.Transaction.Status.FAILED)) {
             return ResponseEntity.badRequest().body(responseDTO);

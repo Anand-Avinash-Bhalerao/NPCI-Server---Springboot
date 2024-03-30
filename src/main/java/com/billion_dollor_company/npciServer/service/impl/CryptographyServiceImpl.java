@@ -16,7 +16,7 @@ public class CryptographyServiceImpl implements CryptographyService {
 
         // This is the password entered by the user. example -123456
         String originalPassword = decryptionManager.getDecryptedMessage(encryptedPassword);
-
+        System.out.println("The orignal password is " + originalPassword);
         // now encrypt the password with Bank's public key.
         EncryptionManager encryptionManager = new EncryptionManager(Constants.Keys.BANK_PUBLIC_KEY, "Bank's private key");
 

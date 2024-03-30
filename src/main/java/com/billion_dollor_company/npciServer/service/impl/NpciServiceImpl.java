@@ -1,13 +1,12 @@
 package com.billion_dollor_company.npciServer.service.impl;
 
-import com.billion_dollor_company.npciServer.payloads.TransactionRequestDTO;
-import com.billion_dollor_company.npciServer.payloads.TransactionResponseDTO;
+import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceReqDTO;
+import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceResDTO;
+import com.billion_dollor_company.npciServer.payloads.transaction.TransactionReqDTO;
+import com.billion_dollor_company.npciServer.payloads.transaction.TransactionResDTO;
 import com.billion_dollor_company.npciServer.service.interfaces.BankApiService;
 import com.billion_dollor_company.npciServer.service.interfaces.CryptographyService;
 import com.billion_dollor_company.npciServer.service.interfaces.NpciService;
-import com.billion_dollor_company.npciServer.util.Constants;
-import com.billion_dollor_company.npciServer.util.cryptography.DecryptionManager;
-import com.billion_dollor_company.npciServer.util.cryptography.EncryptionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +23,29 @@ public class NpciServiceImpl implements NpciService {
         this.cryptographyService = cryptographyService;
     }
 
-
     @Override
-    public TransactionResponseDTO initiateTransaction(TransactionRequestDTO requestInfo) {
-
+    public BalanceResDTO getAccountBalance(BalanceReqDTO requestInfo) {
         // Decrypt the password with NPCI private key.
         String encryptedPassword = requestInfo.getEncryptedPassword();
 
-        // This is the encrypted password.
+        // Decrypt and re encrypt the password with bank public key.
+        encryptedPassword = cryptographyService.decryptAndReEncryptPW(encryptedPassword);
+
+        requestInfo.setEncryptedPassword(encryptedPassword);
+        return bankApiService.getAccountBalance(requestInfo);
+    }
+
+    @Override
+    public TransactionResDTO initiateTransaction(TransactionReqDTO requestInfo) {
+        // Get the encrypted password from the request.
+        String encryptedPassword = requestInfo.getEncryptedPassword();
+
+        // Decrypt and re encrypt the password with bank public key.
         encryptedPassword = cryptographyService.decryptAndReEncryptPW(encryptedPassword);
 
         requestInfo.setEncryptedPassword(encryptedPassword);
         return bankApiService.initiateTransaction(requestInfo);
     }
+
+
 }

@@ -1,13 +1,12 @@
 package com.billion_dollor_company.npciServer.service.impl;
 
-import com.billion_dollor_company.npciServer.payloads.TransactionRequestDTO;
-import com.billion_dollor_company.npciServer.payloads.TransactionResponseDTO;
+import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceReqDTO;
+import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceResDTO;
+import com.billion_dollor_company.npciServer.payloads.transaction.TransactionReqDTO;
+import com.billion_dollor_company.npciServer.payloads.transaction.TransactionResDTO;
 import com.billion_dollor_company.npciServer.service.interfaces.BankApiService;
 import com.billion_dollor_company.npciServer.util.Constants;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -23,13 +22,26 @@ public class BankApiServiceImpl implements BankApiService {
     }
 
     @Override
-    public TransactionResponseDTO initiateTransaction(TransactionRequestDTO requestInfo) {
-        String bankServerURL = Constants.Servers.BankServer.getTransactionURL();
+    public BalanceResDTO getAccountBalance(BalanceReqDTO requestInfo) {
+        String checkBalanceURL = Constants.Servers.BankServer.getCheckBalanceURL();
         // make the API call to Bank.
         try {
-            return restTemplate.postForEntity(bankServerURL, requestInfo, TransactionResponseDTO.class).getBody();
+            return restTemplate.postForEntity(checkBalanceURL, requestInfo, BalanceResDTO.class).getBody();
         } catch (HttpClientErrorException exception) {
-            return exception.getResponseBodyAs(TransactionResponseDTO.class);
+            return exception.getResponseBodyAs(BalanceResDTO.class);
         }
     }
+
+    @Override
+    public TransactionResDTO initiateTransaction(TransactionReqDTO requestInfo) {
+        String transactionURL = Constants.Servers.BankServer.getTransactionURL();
+        // make the API call to Bank.
+        try {
+            return restTemplate.postForEntity(transactionURL, requestInfo, TransactionResDTO.class).getBody();
+        } catch (HttpClientErrorException exception) {
+            return exception.getResponseBodyAs(TransactionResDTO.class);
+        }
+    }
+
+
 }

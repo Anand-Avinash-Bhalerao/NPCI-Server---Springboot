@@ -47,13 +47,16 @@ public class Constants {
             private static final String BANK_SERVER_PORT = "16000";
 
             private static final String BASE_URL = "http://localhost:" + BANK_SERVER_PORT + "/bank";
-            private static final String START_TRANSACTION = "/transaction";
 
-            // check balance.
-            // get public keys
-            // registrastion
+            private static final String START_TRANSACTION = "/transaction";
+            private static final String CHECK_BALANCE = "/checkBalance";
+
             public static String getTransactionURL() {
                 return BASE_URL + START_TRANSACTION;
+            }
+
+            public static String getCheckBalanceURL(){
+                return BASE_URL + CHECK_BALANCE;
             }
         }
 
