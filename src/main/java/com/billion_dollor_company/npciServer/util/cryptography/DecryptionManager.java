@@ -1,16 +1,23 @@
 package com.billion_dollor_company.npciServer.util.cryptography;
 
-import com.billion_dollor_company.npciServer.util.Helper;
-
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 
 public class DecryptionManager {
     private final String keyName;
     private PrivateKey privateKey;
+
+    private String encode(byte[] data) {
+        return Base64.getEncoder().encodeToString(data);
+    }
+
+    private byte[] decode(String encodedStr) {
+        return Base64.getDecoder().decode(encodedStr);
+    }
 
     public DecryptionManager(String privateKey, String name) {
         this.keyName = name;
@@ -18,13 +25,13 @@ public class DecryptionManager {
     }
 
     public void printKeys() {
-        System.out.println("The private key named:'" + keyName + "'is :" + Helper.encode(privateKey.getEncoded()));
+        System.out.println("The private key named:'" + keyName + "'is :" + encode(privateKey.getEncoded()));
     }
 
 
     public void initWithStrings(String key) {
         try {
-            PKCS8EncodedKeySpec keySpecPrivate = new PKCS8EncodedKeySpec(Helper.decode(key));
+            PKCS8EncodedKeySpec keySpecPrivate = new PKCS8EncodedKeySpec(decode(key));
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
             privateKey = keyFactory.generatePrivate(keySpecPrivate);
@@ -32,15 +39,16 @@ public class DecryptionManager {
         }
     }
 
-    public String getDecryptedMessage(String encryptedMessage){
+    public String getDecryptedMessage(String encryptedMessage) {
         try {
-            byte[] encryptedBytes = Helper.decode(encryptedMessage);
+
+            byte[] encryptedBytes = decode(encryptedMessage);
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
             byte[] decryptedMessage = cipher.doFinal(encryptedBytes);
             return new String(decryptedMessage, StandardCharsets.UTF_8);
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
