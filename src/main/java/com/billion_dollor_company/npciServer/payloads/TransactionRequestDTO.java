@@ -1,11 +1,9 @@
-package com.billion_dollor_company.npciServer.models;
+package com.billion_dollor_company.npciServer.payloads;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
 
 @Data
-//@JacksonXmlRootElement
-public class TransactionRequestInfo {
+public class TransactionRequestDTO {
     private String payeeFullName;
     private String amountToTransfer;
     private String payeeAccountNo;
