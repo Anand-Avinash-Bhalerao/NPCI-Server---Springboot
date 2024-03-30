@@ -17,12 +17,13 @@ public class Constants {
 
     }
 
-    public static class TransactionRequest {
-        public static final String PAYEE_ID = "payeeID";
-        public static final String PAYER_ID = "payerID";
-        public static final String BANK_NAME = "bankName";
-        public static final String ENCRYPTED_STRING = "encryptedString";
-        public static final String AMOUNT = "amount";
+
+
+    public static class Transaction {
+        public static class Status {
+            public static final String SUCCESS = "Success";
+            public static final String FAILED = "Failed";
+        }
     }
 
     public static class Tags {
