@@ -1,24 +1,27 @@
 package com.billion_dollor_company.npciServer.service.impl;
 
-import com.billion_dollor_company.npciServer.models.TransactionRequestInfo;
-import com.billion_dollor_company.npciServer.models.TransactionResponseInfo;
+import com.billion_dollor_company.npciServer.payloads.TransactionRequestDTO;
+import com.billion_dollor_company.npciServer.payloads.TransactionResponseDTO;
 import com.billion_dollor_company.npciServer.service.interfaces.BankApiService;
 import com.billion_dollor_company.npciServer.service.interfaces.NpciService;
 import com.billion_dollor_company.npciServer.util.Constants;
 import com.billion_dollor_company.npciServer.util.cryptography.DecryptionManager;
 import com.billion_dollor_company.npciServer.util.cryptography.EncryptionManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NpciServiceImpl implements NpciService {
 
+    private final BankApiService bankApiService;
+
     @Autowired
-    private BankApiService bankApiService;
+    public NpciServiceImpl(BankApiService bankApiService) {
+        this.bankApiService = bankApiService;
+    }
 
     @Override
-    public TransactionResponseInfo initiateTransaction(TransactionRequestInfo requestInfo) {
+    public TransactionResponseDTO initiateTransaction(TransactionRequestDTO requestInfo) {
 
         // Decrypt the password with NPCI private key.
         String encryptedPassword = requestInfo.getEncryptedPassword();
@@ -31,7 +34,7 @@ public class NpciServiceImpl implements NpciService {
 
         requestInfo.setEncryptedPassword(encryptedPassword);
 
-        TransactionResponseInfo responseFromBank = bankApiService.initiateTransaction(requestInfo);
+        TransactionResponseDTO responseFromBank = bankApiService.initiateTransaction(requestInfo);
         System.out.println("The response from bank is: " + responseFromBank);
         return responseFromBank;
     }

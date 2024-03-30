@@ -1,22 +1,25 @@
 package com.billion_dollor_company.npciServer.controller;
 
-import com.billion_dollor_company.npciServer.models.TransactionRequestInfo;
-import com.billion_dollor_company.npciServer.models.TransactionResponseInfo;
+import com.billion_dollor_company.npciServer.payloads.TransactionRequestDTO;
+import com.billion_dollor_company.npciServer.payloads.TransactionResponseDTO;
 import com.billion_dollor_company.npciServer.service.interfaces.NpciService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping(value = "/npci", produces = {"application/xml"})
 public class NpciController {
 
+    private final NpciService npciService;
+
     @Autowired
-    private NpciService npciService;
+    public NpciController(NpciService npciService) {
+        this.npciService = npciService;
+    }
 
     @PostMapping("/transaction")
-    public ResponseEntity<TransactionResponseInfo> initiateTransaction(@RequestBody TransactionRequestInfo request) {
+    public ResponseEntity<TransactionResponseDTO> initiateTransaction(@RequestBody TransactionRequestDTO request) {
         return ResponseEntity.ok(npciService.initiateTransaction(request));
     }
 

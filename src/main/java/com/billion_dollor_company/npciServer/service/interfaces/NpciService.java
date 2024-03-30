@@ -1,9 +1,8 @@
 package com.billion_dollor_company.npciServer.service.interfaces;
 
-import com.billion_dollor_company.npciServer.models.TransactionRequestInfo;
-import com.billion_dollor_company.npciServer.models.TransactionResponseInfo;
-import org.springframework.http.ResponseEntity;
+import com.billion_dollor_company.npciServer.payloads.TransactionRequestDTO;
+import com.billion_dollor_company.npciServer.payloads.TransactionResponseDTO;
 
 public interface NpciService {
-    public TransactionResponseInfo initiateTransaction(TransactionRequestInfo requestInfo);
+    public TransactionResponseDTO initiateTransaction(TransactionRequestDTO requestInfo);
 }
