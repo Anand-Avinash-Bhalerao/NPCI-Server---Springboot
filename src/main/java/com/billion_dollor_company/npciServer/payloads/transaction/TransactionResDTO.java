@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
 
 @Data
-@JacksonXmlRootElement(localName = "TransactionResponse")
+@JacksonXmlRootElement(localName = "response")
 public class TransactionResDTO {
     private String status;
     private String message;
