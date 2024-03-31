@@ -1,5 +1,6 @@
 package com.billion_dollor_company.npciServer.service.impl;
 
+import com.billion_dollor_company.npciServer.exceptions.customExceptions.CryptographyException;
 import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceReqDTO;
 import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceResDTO;
 import com.billion_dollor_company.npciServer.payloads.transaction.TransactionReqDTO;
@@ -7,6 +8,7 @@ import com.billion_dollor_company.npciServer.payloads.transaction.TransactionRes
 import com.billion_dollor_company.npciServer.service.interfaces.BankApiService;
 import com.billion_dollor_company.npciServer.service.interfaces.CryptographyService;
 import com.billion_dollor_company.npciServer.service.interfaces.NpciService;
+import com.billion_dollor_company.npciServer.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +47,10 @@ public class NpciServiceImpl implements NpciService {
 
         // Decrypt and re encrypt the password with bank public key.
         encryptedPassword = cryptographyService.decryptAndReEncryptPW(encryptedPassword);
+
+        // if the password entered was wrong, then the service returns null. no point of sending null value forward. throw error.
+        if(encryptedPassword == null)
+            throw new CryptographyException(Constants.Values.ERROR_IN_CRYPTOGRAPHY);
 
         // reuse the same object. because why not.
         requestInfo.setEncryptedPassword(encryptedPassword);

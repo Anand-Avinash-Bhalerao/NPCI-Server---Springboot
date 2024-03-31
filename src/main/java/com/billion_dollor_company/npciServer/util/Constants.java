@@ -12,33 +12,18 @@ public class Constants {
         public static final String BANK_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1qLZAgclRGd+oClwDD6xfAEpSiA01yxwfAjd7grUm5H1AcNgCU5/u+LVS+nn4uvfrcNG+RVYXIMpnB6ahbtBp909XxDPIYYDC4XLau6wGv5A+1owQRgURk9DvRUXrd913CslBiT16LdBaRNjU6EOy25EFV6yQLKNUJudhdCxf9ZmbBpvIha2EYlS4O9kU+ndy2Z05K5D35bxSNG7LlGLZ5WO0v3FAWpKUgx+XYtgbmNisueQ2cqpvQwILkB8RL2YCiNDgT0406FAtPcTiMkiY2Rzm2CH7KfscgfX20C245aLdGWJPE6MuBEJYtN1+Zj7Y3cjcUjof1uVseYswvmJiwIDAQAB";
     }
 
-    public static class Messages {
-        public static final String MESSAGE1 = "YRmLykqB/qzDcW2ZEYqbVIhmEYAO8mzkF73GmALca2dGQ39T5RHIlxTGq0OSnOEzm/dssaZ5MZD3WhFxwd8scVO4vlawOU3nh751FSfsCcMfP4Y9UPoWm9iKLZE5PmZXbe6UT+EvjSk3YCKVhiEQYQJoRaU749LLWT+WE/BRyHJFdGieW+UHN/eaehRriemV7Fw8FJBOmXfYZR3Jg4nG5WS9Xh/0cXr8i7oNSiYRSrNLnvfCKdr+aOluaQrCJY+wEaC8COo/SWcYQQGLCU00J1j5pT7R3SG/Ugspq+p1qLG4b1lVPbv+X+BE6TNA9OwuqvURyffqVlXETCnCOGMwvw==";
+
+
+    public static class Status {
+
+        public static final String SUCCESS = "Success";
+        public static final String FAILED = "Failed";
 
     }
 
-
-
-    public static class Transaction {
-        public static class Status {
-            public static final String SUCCESS = "Success";
-            public static final String FAILED = "Failed";
-        }
+    public static class Values{
+        public static final String ERROR_IN_CRYPTOGRAPHY = "Some error occurred during decryption. Probably the pin entered was wrong.";
     }
-
-    public static class Tags {
-        public static final String STATUS = "status";
-        public static final String REQUEST = "request";
-
-    }
-
-    public static class Values {
-        public static final String NO_RECORD_FOUND = "No such record found";
-        public static final String ERROR_WHILE_CONVERSION = "An error occurred while conversions";
-        public static final String SOME_ERROR_OCCURRED = "An unknown error occurred";
-
-    }
-
 
     public static class Servers {
 

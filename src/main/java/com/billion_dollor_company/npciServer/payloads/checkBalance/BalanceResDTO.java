@@ -10,6 +10,4 @@ import lombok.NoArgsConstructor;
 public class BalanceResDTO {
     private String status;
     private String message;
-    private String upiID;
-    private String balance;
 }

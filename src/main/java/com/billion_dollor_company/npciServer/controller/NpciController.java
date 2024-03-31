@@ -30,7 +30,7 @@ public class NpciController {
         BalanceResDTO responseDTO = npciService.getAccountBalance(request);
 
         // If the response status code was BAD_REQUEST then send Failed, 400 otherwise Success 200.
-        if (responseDTO.getStatus().equals(Constants.Transaction.Status.FAILED)) {
+        if (responseDTO.getStatus().equals(Constants.Status.FAILED)) {
             return ResponseEntity.badRequest().body(responseDTO);
         }
         return ResponseEntity.ok().body(responseDTO);
@@ -43,7 +43,7 @@ public class NpciController {
         TransactionResDTO responseDTO = npciService.initiateTransaction(request);
 
         // If the response status code was BAD_REQUEST then send Failed, 400 otherwise Success 200.
-        if (responseDTO.getStatus().equals(Constants.Transaction.Status.FAILED)) {
+        if (responseDTO.getStatus().equals(Constants.Status.FAILED)) {
             return ResponseEntity.badRequest().body(responseDTO);
         }
         return ResponseEntity.ok().body(responseDTO);
