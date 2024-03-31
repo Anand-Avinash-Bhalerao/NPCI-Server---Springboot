@@ -24,10 +24,15 @@ public class BankApiServiceImpl implements BankApiService {
     @Override
     public BalanceResDTO getAccountBalance(BalanceReqDTO requestInfo) {
         String checkBalanceURL = Constants.Servers.BankServer.getCheckBalanceURL();
-        // make the API call to Bank.
+
         try {
+
+            // make the API call to Bank.
             return restTemplate.postForEntity(checkBalanceURL, requestInfo, BalanceResDTO.class).getBody();
+
         } catch (HttpClientErrorException exception) {
+
+            // even if the status code was anything other 200, the body contains an instance of BalanceResDTO
             return exception.getResponseBodyAs(BalanceResDTO.class);
         }
     }
@@ -35,10 +40,14 @@ public class BankApiServiceImpl implements BankApiService {
     @Override
     public TransactionResDTO initiateTransaction(TransactionReqDTO requestInfo) {
         String transactionURL = Constants.Servers.BankServer.getTransactionURL();
-        // make the API call to Bank.
+
         try {
+            // make the API call to Bank.
             return restTemplate.postForEntity(transactionURL, requestInfo, TransactionResDTO.class).getBody();
+
         } catch (HttpClientErrorException exception) {
+
+            // even if the status code was anything other 200, the body contains an instance of BalanceResDTO
             return exception.getResponseBodyAs(TransactionResDTO.class);
         }
     }

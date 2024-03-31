@@ -23,8 +23,11 @@ public class NpciController {
 
     @PostMapping("/checkBalance")
     public ResponseEntity<BalanceResDTO> getAccountBalance(@RequestBody BalanceReqDTO request) {
-        System.out.println("The request is "+request);
+
+        // getAccountBalance forwards the req to bank by decrypting and re-encrypting the password.
         BalanceResDTO responseDTO = npciService.getAccountBalance(request);
+
+        // If the response status code was BAD_REQUEST then send Failed, 400 otherwise Success 200.
         if (responseDTO.getStatus().equals(Constants.Transaction.Status.FAILED)) {
             return ResponseEntity.badRequest().body(responseDTO);
         }
@@ -34,8 +37,10 @@ public class NpciController {
 
     @PostMapping("/transaction")
     public ResponseEntity<TransactionResDTO> initiateTransaction(@RequestBody TransactionReqDTO request) {
+        // initiateTransaction forwards the req to bank by decrypting and re-encrypting the password.
         TransactionResDTO responseDTO = npciService.initiateTransaction(request);
 
+        // If the response status code was BAD_REQUEST then send Failed, 400 otherwise Success 200.
         if (responseDTO.getStatus().equals(Constants.Transaction.Status.FAILED)) {
             return ResponseEntity.badRequest().body(responseDTO);
         }

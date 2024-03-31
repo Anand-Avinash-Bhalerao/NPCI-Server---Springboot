@@ -31,7 +31,10 @@ public class NpciServiceImpl implements NpciService {
         // Decrypt and re encrypt the password with bank public key.
         encryptedPassword = cryptographyService.decryptAndReEncryptPW(encryptedPassword);
 
+        // reuse the same object but now with changed encryptedPassword.
         requestInfo.setEncryptedPassword(encryptedPassword);
+
+        // Forward the req to bank and send back the res received
         return bankApiService.getAccountBalance(requestInfo);
     }
 
@@ -43,7 +46,10 @@ public class NpciServiceImpl implements NpciService {
         // Decrypt and re encrypt the password with bank public key.
         encryptedPassword = cryptographyService.decryptAndReEncryptPW(encryptedPassword);
 
+        // reuse the same object. because why not.
         requestInfo.setEncryptedPassword(encryptedPassword);
+
+        // Forward the req to bank and send back the res received
         return bankApiService.initiateTransaction(requestInfo);
     }
 
