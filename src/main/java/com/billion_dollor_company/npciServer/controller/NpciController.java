@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+// NPCI only send the response back in XML. So make the produces as XML and create the ResponseEntity in this class only.
+// If you directly return ResponseEntity from Service, it somehow sends it in JSON. IDK why.
 @RestController
 @RequestMapping(value = "/npci", produces = {"application/xml"})
 public class NpciController {
