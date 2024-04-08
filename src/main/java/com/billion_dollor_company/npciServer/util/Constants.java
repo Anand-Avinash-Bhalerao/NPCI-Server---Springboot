@@ -21,6 +21,12 @@ public class Constants {
 
     }
 
+    public static class DatabaseTables {
+        public static final String LISTKEYS_TABLE = "list_keys";
+
+
+    }
+
     public static class Values{
         public static final String ERROR_IN_CRYPTOGRAPHY = "Some error occurred during decryption. Probably the pin entered was wrong.";
     }
