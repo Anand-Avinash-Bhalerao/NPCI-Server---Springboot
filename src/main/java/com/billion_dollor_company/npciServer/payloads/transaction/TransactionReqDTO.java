@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class TransactionReqDTO {
-    private String amountToTransfer;
+    private String payeeUpiID;
+    private String payerUpiID;
     private String payerAccountNo;
     private String payerBankName;
-    private String payerUpiID;
     private String encryptedPassword;
-    private String payeeUpiID;
+    private String amountToTransfer;
 }

@@ -3,6 +3,10 @@ package com.billion_dollor_company.npciServer.service.impl;
 import com.billion_dollor_company.npciServer.exceptions.customExceptions.CryptographyException;
 import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceReqDTO;
 import com.billion_dollor_company.npciServer.payloads.checkBalance.BalanceResDTO;
+import com.billion_dollor_company.npciServer.payloads.fetchKeys.FetchKeysReqDTO;
+import com.billion_dollor_company.npciServer.payloads.fetchKeys.FetchKeysResDTO;
+import com.billion_dollor_company.npciServer.payloads.registration.RegistrationReqDTO;
+import com.billion_dollor_company.npciServer.payloads.registration.RegistrationResDTO;
 import com.billion_dollor_company.npciServer.payloads.transaction.TransactionReqDTO;
 import com.billion_dollor_company.npciServer.payloads.transaction.TransactionResDTO;
 import com.billion_dollor_company.npciServer.service.interfaces.BankApiService;
@@ -41,6 +45,28 @@ public class NpciServiceImpl implements NpciService {
     }
 
     @Override
+    public RegistrationResDTO registration(RegistrationReqDTO requestInfo) {
+        String encryptedText = requestInfo.getEncryptedText();
+
+        // this text was first decrypted with the aes key. and then some padding was added to it. the re-encrypted.
+        String reEncryptedText = cryptographyService.decryptAndReEncryptChallenge(encryptedText);
+
+        if (reEncryptedText == null)
+            throw new CryptographyException(Constants.Values.ERROR_IN_AES);
+
+        return new RegistrationResDTO(Constants.Status.SUCCESS, reEncryptedText);
+    }
+
+    @Override
+    public FetchKeysResDTO fetchKeys() {
+        FetchKeysResDTO response = FetchKeysResDTO.builder()
+                .status(Constants.Status.SUCCESS)
+                .message(Constants.Keys.NPCI_PUBLIC_KEY)
+                .build();
+        return response;
+    }
+
+    @Override
     public TransactionResDTO initiateTransaction(TransactionReqDTO requestInfo) {
         // Get the encrypted password from the request.
         String encryptedPassword = requestInfo.getEncryptedPassword();
@@ -49,7 +75,7 @@ public class NpciServiceImpl implements NpciService {
         encryptedPassword = cryptographyService.decryptAndReEncryptPW(encryptedPassword);
 
         // if the password entered was wrong, then the service returns null. no point of sending null value forward. throw error.
-        if(encryptedPassword == null)
+        if (encryptedPassword == null)
             throw new CryptographyException(Constants.Values.ERROR_IN_CRYPTOGRAPHY);
 
         // reuse the same object. because why not.
